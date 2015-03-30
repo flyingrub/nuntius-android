@@ -23,8 +23,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.util.Log;
 
-import org.holylobster.nuntius.activity.SettingsActivity;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -37,15 +35,18 @@ public class BlacklistedApp {
     private static final String TAG = BlacklistedApp.class.getSimpleName();
 
     private static List<ApplicationInfo> blacklistedApp;
-    private Context context = SettingsActivity.getContext();
-    private PackageManager pm = context.getPackageManager();
-    private SharedPreferences settings;
+    private static Context context;
+    private static PackageManager pm;
+    private static SharedPreferences settings;
 
-    public BlacklistedApp() {
-        context = SettingsActivity.getContext();
+    public BlacklistedApp(Context c) {
+        context = c;
         pm = context.getPackageManager();
         settings = context.getSharedPreferences("BlackListSP", context.MODE_PRIVATE);
+        getFromPref();
+    }
 
+    public static void getFromPref(){
         ArrayList<String> bl = new ArrayList<>(settings.getStringSet("BlackList", new HashSet<String>()));
         blacklistedApp = new ArrayList<>();
         for (int i = 0; i< bl.size(); i++){
@@ -58,26 +59,26 @@ public class BlacklistedApp {
         Collections.sort(blacklistedApp, new ApplicationInfo.DisplayNameComparator(pm));
     }
 
-    public List<ApplicationInfo> getBlacklistedApp(){
+    public static List<ApplicationInfo> getBlacklistedApp(){
         return blacklistedApp;
     }
 
-    public void add(ApplicationInfo app){
+    public static void add(ApplicationInfo app){
         blacklistedApp.add(app);
         sortAndPush();
     }
 
-    public void remove(int i){
+    public static void remove(int i){
         blacklistedApp.remove(i);
         sortAndPush();
     }
 
-    public void sortAndPush(){
+    public static void sortAndPush(){
         Collections.sort(blacklistedApp, new ApplicationInfo.DisplayNameComparator(pm));
         pushToPref();
     }
 
-    public void pushToPref(){
+    public static void pushToPref(){
         SharedPreferences.Editor editor = settings.edit();
         ArrayList<String> bl = new ArrayList<>();
         for (int i = 0; i< blacklistedApp.size(); i++){

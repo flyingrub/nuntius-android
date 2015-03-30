@@ -63,8 +63,6 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
     private final NotificationListenerService context;
 
-    private BlacklistedApp blacklistedApp;
-
     public Server(NotificationListenerService context) {
         this.context = context;
     }
@@ -91,7 +89,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
     private boolean filter(StatusBarNotification sbn) {
         Notification notification = sbn.getNotification();
-        Log.d("blacklist", " " + blacklistedApp.getBlacklistedApp());
+        Log.d("blacklist", " " + BlacklistedApp.getBlacklistedApp());
         return
                 notification != null
                 // Filter low priority notifications
@@ -103,7 +101,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     }
 
     private boolean isBlacklisted(StatusBarNotification sbn) {
-        return blacklistedApp.getBlacklistedApp().contains(sbn.getPackageName());
+        return BlacklistedApp.getBlacklistedApp().contains(sbn.getPackageName());
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT_WATCH)
@@ -134,8 +132,8 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
     public void start() {
         Log.i(TAG, "Server starting...");
-        blacklistedApp = new BlacklistedApp();
-        Log.d("bl start", ""  + blacklistedApp.getBlacklistedApp());
+        BlacklistedApp.getFromPref();
+        Log.d("bl start", ""  + BlacklistedApp.getBlacklistedApp());
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         context.registerReceiver(this, filter);
 

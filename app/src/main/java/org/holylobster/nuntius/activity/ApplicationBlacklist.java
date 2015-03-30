@@ -66,9 +66,10 @@ public class ApplicationBlacklist extends ActionBarActivity {
         recyclerView.setLayoutManager(layoutManager);
         pm = getPackageManager();
 
-        blacklistedApp = new BlacklistedApp();
-        Log.d("test", ""+  blacklistedApp.getBlacklistedApp());
-        adapter = new AppBlacklistAdapter(blacklistedApp.getBlacklistedApp());
+        blacklistedApp = new BlacklistedApp(this); // init the class with this context.
+
+        Log.d("test", ""+  BlacklistedApp.getBlacklistedApp());
+        adapter = new AppBlacklistAdapter(this, BlacklistedApp.getBlacklistedApp());
 
         recyclerView.setAdapter(adapter);
         adapter.SetOnItemClickListener(new AppBlacklistAdapter.OnItemClickListener() {
@@ -80,9 +81,9 @@ public class ApplicationBlacklist extends ActionBarActivity {
     }
 
     public void itemSelected(int i) {
-        ApplicationInfo oldApp = blacklistedApp.getBlacklistedApp().get(i);
-        blacklistedApp.remove(i);
-        adapter.refresh(blacklistedApp.getBlacklistedApp());
+        ApplicationInfo oldApp = BlacklistedApp.getBlacklistedApp().get(i);
+        BlacklistedApp.remove(i);
+        adapter.refresh(BlacklistedApp.getBlacklistedApp());
         showInfo(oldApp);
     }
 
@@ -94,8 +95,8 @@ public class ApplicationBlacklist extends ActionBarActivity {
                         .actionListener(new ActionClickListener() {
                             @Override
                             public void onActionClicked(Snackbar snackbar) {
-                                blacklistedApp.add(app);
-                                adapter.refresh(blacklistedApp.getBlacklistedApp());
+                                BlacklistedApp.add(app);
+                                adapter.refresh(BlacklistedApp.getBlacklistedApp());
                             }
                         }) // action button's ActionClickListener
                         .text(getString(R.string.removed_from_blacklist, pm.getApplicationLabel(app))), this);
@@ -104,10 +105,10 @@ public class ApplicationBlacklist extends ActionBarActivity {
     @Override
     public void onResume(){
         super.onResume();
-        adapter.refresh(blacklistedApp.getBlacklistedApp());
+        adapter.refresh(BlacklistedApp.getBlacklistedApp());
 
         LinearLayout linearLayout = (LinearLayout) findViewById(R.id.centerLayout);
-        if(blacklistedApp.getBlacklistedApp().size() > 0 ){
+        if(BlacklistedApp.getBlacklistedApp().size() > 0 ){
             linearLayout.setVisibility(View.GONE);
         }
     }

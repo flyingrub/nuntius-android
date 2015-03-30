@@ -47,7 +47,6 @@ public class AddApplicationBlacklist extends ActionBarActivity {
     private Toolbar toolbar;
 
     private List<ApplicationInfo> packages;   // All Installed App
-    private BlacklistedApp blacklistedApp;
 
     private PackageManager pm;
 
@@ -73,7 +72,7 @@ public class AddApplicationBlacklist extends ActionBarActivity {
     }
 
     public void addToBlacklist(int position) {
-        blacklistedApp.add(packages.get(position));
+        BlacklistedApp.add(packages.get(position));
         showInfo(position);
     }
 
@@ -86,7 +85,7 @@ public class AddApplicationBlacklist extends ActionBarActivity {
     @Override
     public void onResume(){
         super.onResume();
-        blacklistedApp = new BlacklistedApp();
+        BlacklistedApp.getFromPref();
     }
 
     @Override
@@ -106,7 +105,7 @@ public class AddApplicationBlacklist extends ActionBarActivity {
         protected void onPostExecute(String message) {
             LinearLayout linearLayout = (LinearLayout) findViewById(R.id.centerLayout);
             linearLayout.setVisibility(View.GONE);
-            adapter = new AppBlacklistAdapter(packages);
+            adapter = new AppBlacklistAdapter(getApplicationContext(), packages);
             recyclerView.setAdapter(adapter);
 
             adapter.SetOnItemClickListener(new AppBlacklistAdapter.OnItemClickListener() {
