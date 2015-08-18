@@ -17,13 +17,11 @@
 
 package org.holylobster.nuntius.utils;
 
-import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.google.zxing.integration.android.IntentIntegrator;
-
+import org.holylobster.nuntius.activity.QrCodeActivity;
 import org.holylobster.nuntius.activity.SettingsActivity;
 import org.spongycastle.asn1.x500.X500Name;
 import org.spongycastle.cert.X509CertificateHolder;
@@ -122,12 +120,12 @@ public class SslUtils {
 
         private void getQrCode() {
             Context context = SettingsActivity.getContext();
-            IntentIntegrator integrator = new IntentIntegrator((Activity) context);
-            integrator.initiateScan();
+            Intent intent = new Intent(context, QrCodeActivity.class);
+            context.startActivity(intent);
         }
 
         private boolean pairAndTrust(X509Certificate cert) {
-            PairingData pairingData = SettingsActivity.getCurrentPairingData();
+            PairingData pairingData = QrCodeActivity.getCurrentPairingData();
             if (pairingData == null) {
                 return false;
             }

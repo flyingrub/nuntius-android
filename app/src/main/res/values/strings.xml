@@ -27,5 +27,9 @@
     <string name="undo">Undo</string>
     <string name="ip">My IP</string>
     <string name="relaunch_server">Enable the switch to relaunch the server.</string>
+    <string name="qrcode_title">Trust the new connection ?</string>
+    <string name="qrcode_summary">Flash the qrcode that appeared on the desktop to trust the new computer.</string>
+    <string name="qrcode_title_trusted">%s is now trusted.</string>
+    <string name="qrcode_summary_trusted">You can now close the qr code view to connect to the new computer.</string>
 
 </resources>

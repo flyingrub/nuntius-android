@@ -24,10 +24,16 @@ public class PairingData {
     private final String deviceLabel;
     private final String fingerprint;
 
-    public PairingData(String qrCodeBytes) {
+    private PairingData(String fingerprint, String deviceLabel) {
+        this.fingerprint = fingerprint;
+        this.deviceLabel = deviceLabel;
+    }
+
+    public static PairingData createPairingData(String qrCodeBytes) throws IndexOutOfBoundsException {
         String[] parts = qrCodeBytes.split("-");
-        this.fingerprint = parts[0];
-        this.deviceLabel = parts[1];
+        String fingerprint = parts[0];
+        String deviceLabel = parts[1];
+        return new PairingData(fingerprint, deviceLabel);
     }
 
     public String getDeviceLabel() {
