@@ -20,6 +20,7 @@ package org.holylobster.nuntius.activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -34,6 +35,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -49,6 +51,7 @@ public class SettingsActivity extends ActionBarActivity {
     private static final String TAG = SettingsActivity.class.getSimpleName();
 
     private static Context context;
+    private static NotificationManager notificationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +70,8 @@ public class SettingsActivity extends ActionBarActivity {
         android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.settingstoolbar);
         setSupportActionBar(toolbar);
 
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
         // Display the fragment as the main content.
         getFragmentManager()
                 .beginTransaction()
@@ -78,22 +83,47 @@ public class SettingsActivity extends ActionBarActivity {
         return context;
     }
 
+    private static NotificationManager getNotificationManager() {
+        return notificationManager;
+    }
+
     public static class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
         private BroadcastReceiver br;
+        private static final int notiID = 1;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_general);
 
-            Preference myPref = findPreference("qrcode");
-            myPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            Preference qrCode = findPreference("qrcode");
+            qrCode.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 public boolean onPreferenceClick(Preference preference) {
                     Intent intent = new Intent(context, QrCodeActivity.class);
                     context.startActivity(intent);
                     return true;
                 }
             });
+
+            final PackageInfo packageInfo = getPackageInfo();
+            final String nuntius_version = String.format("v%s (%d)", packageInfo.versionName, packageInfo.versionCode);
+
+            Preference notiTest = findPreference("notification_test");
+            notiTest.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                public boolean onPreferenceClick(Preference preference) {
+                    android.support.v4.app.NotificationCompat.Builder mBuilder =
+                            new NotificationCompat.Builder(getContext())
+                                    .setSmallIcon(R.drawable.logo)
+                                    .setContentTitle(getString(R.string.notification_test_title))
+                                    .setContentText(String.format(getString(R.string.notification_test_summary), nuntius_version));
+
+                    getNotificationManager().notify(notiID, mBuilder.build());
+                    return true;
+                }
+            });
+
+            Preference version = findPreference("version");
+            version.setSummary(nuntius_version);
         }
 
         @Override
@@ -106,34 +136,12 @@ public class SettingsActivity extends ActionBarActivity {
             br = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    String status = intent.getStringExtra("status");
-                    updateSummary(findPreference("main_enable_switch"));
+                    //String status = intent.getStringExtra("status");  // unused extra.
+                    updateSwitchSummary();
                 }
             };
             getActivity().registerReceiver(br, filter);
-
-            for (int i = 0; i < getPreferenceScreen().getPreferenceCount(); ++i) {
-                Preference preference = getPreferenceScreen().getPreference(i);
-                if (preference instanceof PreferenceGroup) {
-                    PreferenceGroup preferenceGroup = (PreferenceGroup) preference;
-                    for (int j = 0; j < preferenceGroup.getPreferenceCount(); ++j) {
-                        updatePreference(preferenceGroup.getPreference(j));
-                    }
-                } else {
-                    updatePreference(preference);
-                }
-            }
-        }
-
-        private void updatePreference(Preference preference) {
-            if (preference.getKey().equals("main_enable_switch")) {
-                if (preference.getSharedPreferences().getBoolean("main_enable_switch", true)) {
-                    updateSummary(preference);
-                }
-            } else if (preference.getKey().equals("version")) {
-                PackageInfo packageInfo = getPackageInfo();
-                preference.setSummary(String.format("v%s (%d)", packageInfo.versionName, packageInfo.versionCode));
-            }
+            updateSwitchSummary();
         }
 
         public PackageInfo getPackageInfo() {
@@ -147,7 +155,8 @@ public class SettingsActivity extends ActionBarActivity {
             }
         }
 
-        private void updateSummary(Preference preference) {
+        private void updateSwitchSummary() {
+            Preference preference = findPreference("main_enable_switch");
             String summary;
             if (NotificationListenerService.server != null) {
                 String message = NotificationListenerService.server.getStatusMessage();
@@ -189,7 +198,6 @@ public class SettingsActivity extends ActionBarActivity {
 
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             Preference preference = findPreference(key);
-            updatePreference(preference);
             if (preference.getKey().equals("main_enable_switch")) {
                 if (preference.getSharedPreferences().getBoolean("main_enable_switch", true)) {
                     if (Server.BLUETOOTH_ENABLED) {
@@ -207,8 +215,8 @@ public class SettingsActivity extends ActionBarActivity {
                     if (!NotificationListenerService.isNotificationAccessEnabled()) {
                         new AskNotificationAccessDialogFragment().show(getFragmentManager(), "NoticeDialogFragment");
                     }
-                    updatePreference(preference);
                 }
+                updateSwitchSummary();
             }
         }
 

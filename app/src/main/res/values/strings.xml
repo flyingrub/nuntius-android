@@ -31,5 +31,12 @@
     <string name="qrcode_summary">Flash the qrcode that appeared on the desktop to trust the new computer.</string>
     <string name="qrcode_title_trusted">%s is now trusted.</string>
     <string name="qrcode_summary_trusted">You can now close the qr code view to connect to the new computer.</string>
-
+    <string name="settings_about">About</string>
+    <string name="settings_more">More</string>
+    <string name="settings_qrcode_title">QR Code</string>
+    <string name="settings_qrcode_summary">Launch the qr code view</string>
+    <string name="settings_notification_test_title">Send a notification</string>
+    <string name="settings_notification_test_summary">Allows you to test if the notification is received on desktop</string>
+    <string name="notification_test_title">Nuntius Notification Test</string>
+    <string name="notification_test_summary">Hello from nutius %s.</string>
 </resources>
