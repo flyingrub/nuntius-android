@@ -34,8 +34,11 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.service.notification.StatusBarNotification;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
+import org.holylobster.nuntius.R;
+import org.holylobster.nuntius.activity.SettingsActivity;
 import org.holylobster.nuntius.bluetooth.BluetoothConnectionProvider;
 import org.holylobster.nuntius.network.NetworkConnectionProvider;
 import org.holylobster.nuntius.network.SslNetworkConnectionProvider;
@@ -360,6 +363,17 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
         };
         connections.add(new Connection(context, socket, notiHandler));
         notifyListener(getStatusMessage());
+        sendNewConnectionNoti();
+    }
+
+    public void sendNewConnectionNoti() {
+        android.support.v4.app.NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(context)
+                        .setSmallIcon(R.drawable.logo)
+                        .setContentTitle(context.getString(R.string.notification_new_connection_title))
+                        .setContentText(String.format(context.getString(R.string.notification_summary), SettingsActivity.nuntius_version));
+
+        SettingsActivity.sendNotification(builder);
     }
 
     public String getContactName(String phoneNumber) {
